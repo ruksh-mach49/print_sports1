@@ -691,7 +691,7 @@ export async function handler(event) {
             await sns.publish({
                 TopicArn: SNS_TOPIC_ARN,
                 Subject: 'SPORTS PRINT ERROR',
-                Message: JSON.stringify(data, null, 2)
+                Message: JSON.stringify(printErrors, null, 2)
             }).promise();
         }catch(err) {
             console.log("SNS MESSAGE FAILED");
