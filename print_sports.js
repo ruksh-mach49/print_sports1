@@ -710,7 +710,7 @@ function checkEnvVar() {
     const requiredEnvVars = [
         'CLIENT_EMAIL',
         'PRIVATE_KEY',
-        'ROOT_FOLDER_ID',
+        'ROOT_FOLDER_ID4',
         'LINNWORKS_APP_ID',
         'LINNWORKS_APP_SECRET',
         'LINNWORKS_API_TOKEN',
