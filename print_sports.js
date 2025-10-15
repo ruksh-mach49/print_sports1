@@ -296,6 +296,8 @@ function checkItemSkus(items) {
   if(items==null || !Array.isArray(items)) return false;
   for(let i=0; i<items.length; i++) {
     const item= items[i];
+    const itemId= item.ItemId;
+    if(itemId==null || itemId==="00000000-0000-0000-0000-000000000000") return false;
     const itemSku= item.SKU;
     if(itemSku==null) return false;
     if(exceptionSkus.hasOwnProperty(itemSku)) return false;
