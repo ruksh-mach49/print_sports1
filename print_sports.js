@@ -239,7 +239,7 @@ function processNorthernOrder(order, shopify_map, postCodePrefixes) {
   const isOutOfArea= postCodePrefixes.some(pc=> postCode.startsWith(pc));
   const isBTPostCode= postCode.startsWith("bt");
   if(isBTPostCode) return DPD_TWO_DAY;
-  if(totalWeight<=15) {
+  if(totalWeight<=14) {
     if(isExpress) return M28_24;
     else return M28_48;
   }else {
@@ -263,10 +263,10 @@ function processAmazonOrder(order, postCodePrefixes) {
   const postCode= order.CustomerInfo.Address.PostCode.trim().toLowerCase();
   const isOutOfArea=postCodePrefixes.some(pc=> postCode.startsWith(pc));
   if(isPrime) {
-    if(isOutOfArea || totalWeight>15) return ABS_DPD_NEXT_DAY;
+    if(isOutOfArea || totalWeight>14) return ABS_DPD_NEXT_DAY;
     else return ABS_EVRI_LINKED_NEXT_DAY;
   }
-  else if(totalWeight>15) return DPD_NEXT_DAY;
+  else if(totalWeight>14) return DPD_NEXT_DAY;
   else return M28_48;
 }
 
@@ -274,7 +274,7 @@ function processOtherOrders(order, postCodePrefixes) {
   const totalWeight= order.ShippingInfo.TotalWeight;
   const postCode= order.CustomerInfo.Address.PostCode.trim().toLowerCase();
   const isOutOfArea=postCodePrefixes.some(pc=> postCode.startsWith(pc));
-  if(totalWeight<=15) return M28_48;
+  if(totalWeight<=14) return M28_48;
   else if(isOutOfArea) return DPD_TWO_DAY;
   else return DPD_NEXT_DAY;
 }
@@ -301,7 +301,7 @@ function checkItemSkus(items) {
     const itemSku= item.SKU;
     if(itemSku==null) return false;
     if(exceptionSkus.hasOwnProperty(itemSku)) return false;
-    if(itemSku.toLowerCase().includes("floormat")) return false;
+    if(itemSku.toLowerCase().includes("mat") || itemSku.toLowerCase().includes("roller") || itemSku.toLowerCase().includes("rack") || itemSku.toLowerCase().includes("ball")) return false;
   }
   return true;
 }
