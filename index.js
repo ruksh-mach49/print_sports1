@@ -14,8 +14,8 @@ server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-// sunday 4:30am for 8AM batch
-cron.schedule('32 4 * * 0', async () => {
+// sunday 3:30am for 8AM batch
+cron.schedule('32 3 * * 0', async () => {
   await handler();
 }, {
   scheduled: true,
@@ -30,24 +30,24 @@ cron.schedule('32 6 * * 0', async () => {
   timezone: "Europe/London"  // Ensures UK time
 });
 
-// monday 3:30am for 7AM batch
-cron.schedule('32 3 * * 1', async () => {
+// monday 2:30am for 7AM batch
+cron.schedule('32 2 * * 1', async () => {
   await handler();
 }, {
   scheduled: true,
   timezone: "Europe/London"  // Ensures UK time
 });
 
-// monday 5:30am for 7AM batch
-cron.schedule('32 5 * * 1', async () => {
+// monday 6:02am for 7AM batch
+cron.schedule('2 6 * * 1', async () => {
   await handler();
 }, {
   scheduled: true,
   timezone: "Europe/London"  // Ensures UK time
 });
 
-// tuesday-friday 4:30am for 7AM batch
-cron.schedule('32 4 * * 2-5', async () => {
+// tuesday-friday 3:30am for 7AM batch
+cron.schedule('32 3 * * 2-5', async () => {
   await handler();
 }, {
   scheduled: true,
@@ -63,7 +63,7 @@ cron.schedule('2 6 * * 2-5', async () => {
 });
 
 // monday-friday 9:30am for 10AM batch
-cron.schedule('32 9 * * 1-5', async () => {
+cron.schedule('25 7 * * 1-5', async () => {
   await handler();
 }, {
   scheduled: true,
