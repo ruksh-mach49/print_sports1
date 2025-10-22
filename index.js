@@ -63,7 +63,7 @@ cron.schedule('2 6 * * 2-5', async () => {
 });
 
 // monday-friday 9:30am for 10AM batch
-cron.schedule('25 7 * * 1-5', async () => {
+cron.schedule('32 9 * * 1-5', async () => {
   await handler();
 }, {
   scheduled: true,
