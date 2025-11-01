@@ -577,34 +577,75 @@ async function downloadFile(url, filePath) {
     });
 };
 
+// function getBatchTime(date) {
+//     const day=date.split(',')[0].trim().toLowerCase();
+//     const getHours=Number(date.split(',')[2].trim().split(':')[0])
+//     const getMinutes=Number(date.split(',')[2].trim().split(':')[1])
+//     const current_seconds=getHours*60*60 + getMinutes*60;
+//     let batch_timings;
+//     let arr;
+//     if(day==="sunday") {
+//         batch_timings=["8:00"];
+//         arr=["08.00 AM"];
+//     }else {
+//         batch_timings=["7:00", "10:00", "12:00", "14:30", "15:45"];
+//         arr=["07.00 AM", "10.00 AM", "12.00 PM", "02.30 PM", "03.45 PM"];
+//     }
+//     let ind=0;
+//     let mini=1e6;
+//     for(let i=0;i<batch_timings.length;i++) {
+//         const batch_timing_arr=batch_timings[i].split(':')
+//         const batch_seconds=Number(batch_timing_arr[0])*60*60  + Number(batch_timing_arr[1])*60;
+//         const diff=batch_seconds-current_seconds;
+//         if(mini>diff && diff>0) {
+//             mini=diff
+//             ind=i;
+//         }   
+//     }
+//     const dateOnly=date.split(',')[1].split('/').map((part, index) => index === 2 ? part.slice(-2) : part).join('.').trim();
+//     const batchTime=`${dateOnly} ${arr[ind]}`;
+//     return batchTime;
+// }
 function getBatchTime(date) {
-    const day=date.split(',')[0].trim().toLowerCase();
-    const getHours=Number(date.split(',')[2].trim().split(':')[0])
-    const getMinutes=Number(date.split(',')[2].trim().split(':')[1])
-    const current_seconds=getHours*60*60 + getMinutes*60;
-    let batch_timings;
-    let arr;
-    if(day==="sunday") {
-        batch_timings=["8:00"];
-        arr=["08.00 AM"];
-    }else {
-        batch_timings=["7:00", "10:00", "12:00", "14:30", "15:45"];
-        arr=["07.00 AM", "10.00 AM", "12.00 PM", "02.30 PM", "03.45 PM"];
+  const day = date.split(",")[0].trim().toLowerCase();
+  if (day === "saturday") {
+    const [day, month, year] = date.split(",")[1].trim().split("/").map(Number);
+    //console.log(`day: ${day}, month: ${month}, year: ${year}`);
+    let nextDate = new Date(Date.UTC(year, month - 1, day));
+    nextDate.setUTCDate(nextDate.getUTCDate() + 1);
+    nextDate = nextDate.toISOString().split("T")[0];
+    const nextDateStr = `${nextDate.split("-")[2]}.${nextDate.split("-")[1]}.${nextDate.split("-")[0].slice(-2)}`;
+    //console.log(`new date str: ${nextDateStr}`);
+    return `${nextDateStr} 08.00 AM`;
+  }
+  const dateStr = date
+    .split(",")[1]
+    .split("/")
+    .map((part, index) => (index === 2 ? part.slice(-2) : part))
+    .join(".")
+    .trim();
+  if (day === "sunday") {
+    return `${dateStr} 08.00 AM`;
+  }
+  const getHours = Number(date.split(",")[2].trim().split(":")[0]);
+  const getMinutes = Number(date.split(",")[2].trim().split(":")[1]);
+  const current_seconds = getHours * 60 * 60 + getMinutes * 60;
+  const batch_timings = ["7:00", "10:00", "12:00", "14:30", "15:45"];
+  const arr = ["07.00 AM", "10.00 AM", "12.00 PM", "02.30 PM", "03.45 PM"];
+  let ind = 0;
+  let mini = 1e6;
+  for (let i = 0; i < batch_timings.length; i++) {
+    const batch_timing_arr = batch_timings[i].split(":");
+    const batch_seconds =
+      Number(batch_timing_arr[0]) * 60 * 60 + Number(batch_timing_arr[1]) * 60;
+    const diff = batch_seconds - current_seconds;
+    if (mini > diff && diff > 0) {
+      mini = diff;
+      ind = i;
     }
-    let ind=0;
-    let mini=1e6;
-    for(let i=0;i<batch_timings.length;i++) {
-        const batch_timing_arr=batch_timings[i].split(':')
-        const batch_seconds=Number(batch_timing_arr[0])*60*60  + Number(batch_timing_arr[1])*60;
-        const diff=batch_seconds-current_seconds;
-        if(mini>diff && diff>0) {
-            mini=diff
-            ind=i;
-        }   
-    }
-    const dateOnly=date.split(',')[1].split('/').map((part, index) => index === 2 ? part.slice(-2) : part).join('.').trim();
-    const batchTime=`${dateOnly} ${arr[ind]}`;
-    return batchTime;
+  }
+  const batchTime = `${dateStr} ${arr[ind]}`;
+  return batchTime;
 }
 
 async function createFolder(folderName, parentFolderId) {

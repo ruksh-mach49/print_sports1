@@ -14,16 +14,16 @@ server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-// sunday 3:30am for 8AM batch
-cron.schedule('32 3 * * 0', async () => {
+// sunday 00:00am for 8AM batch
+cron.schedule('2 0 * * 0', async () => {
   await handler();
 }, {
   scheduled: true,
   timezone: "Europe/London"  // Ensures UK time
 });
 
-// sunday 6:30am for 8AM batch
-cron.schedule('32 6 * * 0', async () => {
+// sunday 6:15am for 8AM batch
+cron.schedule('17 6 * * 0', async () => {
   await handler();
 }, {
   scheduled: true,
