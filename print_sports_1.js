@@ -173,7 +173,6 @@ async function processOpenOrders(token, ukTime) {
     const shopify_map = await getShopifyData();
     const sportsOrders = await fetchOpenOrders(token);
     //let sportsOrders = await fetchTestOrders(token, BASE_URL);
-    sportsOrders = sportsOrders.data.Data;
     if (sportsOrders == null || !Array.isArray(sportsOrders))
       throw new Error(`INVALID SPORTS ORDER DATA`);
     for (let i = 0; i < sportsOrders.length; i++) {
