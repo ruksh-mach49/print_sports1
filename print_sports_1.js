@@ -102,14 +102,12 @@ function isSportsOrder(order) {
   if (
     order.GeneralInfo.Status === 1 &&
     order.GeneralInfo.hasOwnProperty("InvoicePrintError") === false &&
-    order.GeneralInfo.LabelError.trim().toLowerCase() ===
-      ""(
-        order.GeneralInfo.hasOwnProperty("Marker")
-          ? order.GeneralInfo.Marker === 5
-            ? true
-            : false
-          : false,
-      ) &&
+    order.GeneralInfo.LabelError.trim().toLowerCase() === "" &&
+    (order.GeneralInfo.hasOwnProperty("Marker")
+      ? order.GeneralInfo.Marker === 5
+        ? true
+        : false
+      : false) &&
     order.GeneralInfo.InvoicePrinted === false &&
     order.GeneralInfo.HoldOrCancel === false &&
     order.GeneralInfo.LabelPrinted === false &&
