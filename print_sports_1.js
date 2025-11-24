@@ -557,6 +557,7 @@ async function downloadAndUpload(ids, token, FolderId, orderType, ukTime) {
   const orderIds = ids.map((id) => id.split("|")[0]);
   pdfCount++;
   let pdfUrl = "";
+  let pdfName = "";
   let res;
   try {
     const getPrintResponse = handleRetries(async () => {
@@ -607,6 +608,7 @@ async function downloadAndUpload(ids, token, FolderId, orderType, ukTime) {
     pdfUrl = res.data.URL;
     console.log(`pdf url: ${pdfUrl}`);
     const downloadFilePath = `${invoiceFolderPath}/${orderType}_${pdfCount}_${ids.length - errorCount}.pdf`;
+    pdfName = downloadFilePath;
     await downloadFile(pdfUrl, downloadFilePath);
     const invoiceFiles = await fsp.readdir(invoiceFolderPath);
     const uploadPromises = [];
@@ -640,6 +642,7 @@ async function downloadAndUpload(ids, token, FolderId, orderType, ukTime) {
     console.log(`ids: ${JSON.stringify(ids, null, 2)}`);
     console.log(`count: ${pdfCount}`);
     console.log(`url: ${pdfUrl}`);
+    console.log(`pdfName: ${pdfName}`);
     console.log(`time: ${ukTime}`);
     //pdfCount--;
     const errorMsg =
@@ -649,6 +652,7 @@ async function downloadAndUpload(ids, token, FolderId, orderType, ukTime) {
     console.log(errorMsg);
     printErrors.push({
       msg: `Sports-1 orders upload failed`,
+      pdfName,
       orders: ids,
       url: `${pdfUrl}`,
       time: ukTime,
