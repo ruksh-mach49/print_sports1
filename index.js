@@ -1,5 +1,5 @@
 import cron from "node-cron";
-import { handler } from "./print_sports_1.js";
+import { handler } from "./print_sports_1_2.js";
 import http from "http";
 
 const server = http.createServer((req, res) => {
