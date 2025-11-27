@@ -178,7 +178,6 @@ async function processOpenOrders(token, ukTime) {
     for (let i = 0; i < sportsOrders.length; i++) {
       let order = sportsOrders[i];
       if (!isSportsOrder(order)) continue;
-      console.log(`sports order ${order.NumOrderId}`);
       if (order == null) continue;
       try {
         order = await getNumOrderWrapper(token, order.NumOrderId);
