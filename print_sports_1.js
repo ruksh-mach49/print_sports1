@@ -360,6 +360,7 @@ function checkItemSkus(items) {
       return false;
     const itemSku = item.SKU;
     if (itemSku == null) return false;
+    if (itemSku.toLowerCase().includes("comp_kettlebell")) return false;
     if (exceptionSkus.hasOwnProperty(itemSku)) return false;
     if (
       itemSku.toLowerCase().includes("mat") ||
@@ -491,9 +492,6 @@ async function changeShippingMethod(order, token, PostalServiceId) {
             },
           });
           if (res.status !== 200) throw new Error("shipping update api error");
-          console.log(
-            `successfully update shipping service, for order: ${order.OrderId} , NumOrderId: ${order.NumOrderId}`,
-          );
         },
       ),
     );
