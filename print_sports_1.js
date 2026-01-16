@@ -28,6 +28,8 @@ const DPD_TWO_DAY = process.env.DPD_TWO_DAY;
 const DPD_NEXT_DAY = process.env.DPD_NEXT_DAY;
 const ABS_EVRI_LINKED_NEXT_DAY = process.env.ABS_EVRI_LINKED_NEXT_DAY;
 const ABS_DPD_NEXT_DAY = process.env.ABS_DPD_NEXT_DAY;
+const DHL_ND = process.env.DHL_ND;
+const DHL_48 = process.env.DHL_48;
 const UK_COUNTRY_ID = process.env.UK_COUNTRY_ID;
 const SNS_TOPIC_ARN = process.env.SNS_TOPIC_ARN;
 const limiter = new Bottleneck({
@@ -115,7 +117,7 @@ function isSportsOrder(order) {
     order.GeneralInfo.ReceivedDate != null &&
     order.CustomerInfo.Address.Town.trim().toLowerCase() !== "unknown" &&
     order.Items.length > 0 &&
-    order.ShippingInfo.TotalWeight <= 29
+    order.ShippingInfo.TotalWeight <= 30
   )
     return true;
   return false;
@@ -289,13 +291,13 @@ function processNorthernOrder(order, shopify_map, postCodePrefixes) {
   const postCode = order.CustomerInfo.Address.PostCode.trim().toLowerCase();
   const isOutOfArea = postCodePrefixes.some((pc) => postCode.startsWith(pc));
   const isBTPostCode = postCode.startsWith("bt");
-  if (isBTPostCode) return DPD_TWO_DAY;
+  if (isBTPostCode) return DHL_48;
   if (totalWeight <= 14) {
     if (isExpress) return M28_24;
     else return M28_48;
   } else {
-    if (isOutOfArea) return DPD_TWO_DAY;
-    else return DPD_NEXT_DAY;
+    if (isOutOfArea) return DHL_48;
+    else return DHL_ND;
   }
 }
 
@@ -324,8 +326,10 @@ function processAmazonOrder(order, postCodePrefixes) {
   if (isPrime) {
     if (isOutOfArea || totalWeight > 14) return ABS_DPD_NEXT_DAY;
     else return ABS_EVRI_LINKED_NEXT_DAY;
-  } else if (totalWeight > 14) return DPD_NEXT_DAY;
-  else return M28_48;
+  } else if (totalWeight > 14) {
+    if (isOutOfArea) return DHL_48;
+    else return DHL_ND;
+  } else return M28_48;
 }
 
 function processOtherOrders(order, postCodePrefixes) {
@@ -333,8 +337,8 @@ function processOtherOrders(order, postCodePrefixes) {
   const postCode = order.CustomerInfo.Address.PostCode.trim().toLowerCase();
   const isOutOfArea = postCodePrefixes.some((pc) => postCode.startsWith(pc));
   if (totalWeight <= 14) return M28_48;
-  else if (isOutOfArea) return DPD_TWO_DAY;
-  else return DPD_NEXT_DAY;
+  else if (isOutOfArea) return DHL_48;
+  else return DHL_ND;
 }
 
 function checkItemSkus(items) {
@@ -350,6 +354,8 @@ function checkItemSkus(items) {
     "!HEX_DBELL_40KG_2": 1,
     "!HEX_DBELL_45KG_2": 1,
     "!HEX_DBELL_50KG_2": 1,
+    "!OLYMPIC_BARBELL_15KG": 1,
+    "!OLYMPIC_BARBELL_20KG": 1,
   };
   if (items == null || !Array.isArray(items)) return false;
   for (let i = 0; i < items.length; i++) {
