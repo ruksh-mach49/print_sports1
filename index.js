@@ -16,7 +16,7 @@ server.listen(PORT, () => {
 
 // sunday 00:00am for 8AM batch
 cron.schedule(
-  "2 0 * * 0",
+  "0 0 * * 0",
   async () => {
     await handler();
   },
@@ -28,7 +28,7 @@ cron.schedule(
 
 // sunday 6:15am for 8AM batch
 cron.schedule(
-  "17 6 * * 0",
+  "18 6 * * 0",
   async () => {
     await handler();
   },
@@ -40,7 +40,7 @@ cron.schedule(
 
 // monday 2:30am for 7AM batch
 cron.schedule(
-  "32 2 * * 1",
+  "34 2 * * 1",
   async () => {
     await handler();
   },
@@ -52,7 +52,7 @@ cron.schedule(
 
 // monday 6:02am for 7AM batch
 cron.schedule(
-  "2 6 * * 1",
+  "4 6 * * 1",
   async () => {
     await handler();
   },
@@ -64,7 +64,7 @@ cron.schedule(
 
 // tuesday-friday 3:30am for 7AM batch
 cron.schedule(
-  "32 3 * * 2-5",
+  "35 3 * * 2-5",
   async () => {
     await handler();
   },
@@ -76,7 +76,7 @@ cron.schedule(
 
 // tuesday-friday 6:00am for 7AM batch
 cron.schedule(
-  "11 6 * * 2-5",
+  "13 6 * * 2-5",
   async () => {
     await handler();
   },
@@ -88,7 +88,7 @@ cron.schedule(
 
 // monday-friday 9:30am for 10AM batch
 cron.schedule(
-  "32 9 * * 1-5",
+  "35 9 * * 1-5",
   async () => {
     await handler();
   },
@@ -100,7 +100,7 @@ cron.schedule(
 
 // monday-friday 11:30am for 12PM batch
 cron.schedule(
-  "32 11 * * 1-5",
+  "35 11 * * 1-5",
   async () => {
     await handler();
   },
@@ -112,7 +112,7 @@ cron.schedule(
 
 // monday-friday 2:00pm for 2:30PM batch
 cron.schedule(
-  "2 14 * * 1-5",
+  "4 14 * * 1-5",
   async () => {
     await handler();
   },
@@ -124,7 +124,7 @@ cron.schedule(
 
 // monday-friday 3:15pm for 3:45PM batch
 cron.schedule(
-  "17 15 * * 1-5",
+  "18 15 * * 1-5",
   async () => {
     await handler();
   },
