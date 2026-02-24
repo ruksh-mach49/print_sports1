@@ -1,5 +1,6 @@
 import cron from "node-cron";
 import { handler } from "./print_sports_1.js";
+import { handler2 } from "./print_sports_2.js";
 import http from "http";
 
 const server = http.createServer((req, res) => {
@@ -19,6 +20,7 @@ cron.schedule(
   "0 0 * * 0",
   async () => {
     await handler();
+    await handler2();
   },
   {
     scheduled: true,
@@ -31,6 +33,7 @@ cron.schedule(
   "18 6 * * 0",
   async () => {
     await handler();
+    await handler2();
   },
   {
     scheduled: true,
@@ -43,6 +46,7 @@ cron.schedule(
   "34 2 * * 1",
   async () => {
     await handler();
+    await handler2();
   },
   {
     scheduled: true,
@@ -55,6 +59,7 @@ cron.schedule(
   "4 6 * * 1",
   async () => {
     await handler();
+    await handler2();
   },
   {
     scheduled: true,
@@ -67,6 +72,7 @@ cron.schedule(
   "35 3 * * 2-5",
   async () => {
     await handler();
+    await handler2();
   },
   {
     scheduled: true,
@@ -79,6 +85,7 @@ cron.schedule(
   "13 6 * * 2-5",
   async () => {
     await handler();
+    await handler2();
   },
   {
     scheduled: true,
@@ -91,6 +98,7 @@ cron.schedule(
   "35 9 * * 1-5",
   async () => {
     await handler();
+    await handler2();
   },
   {
     scheduled: true,
@@ -103,6 +111,7 @@ cron.schedule(
   "35 11 * * 1-5",
   async () => {
     await handler();
+    await handler2();
   },
   {
     scheduled: true,
@@ -115,6 +124,7 @@ cron.schedule(
   "4 14 * * 1-5",
   async () => {
     await handler();
+    await handler2();
   },
   {
     scheduled: true,
@@ -127,6 +137,7 @@ cron.schedule(
   "18 15 * * 1-5",
   async () => {
     await handler();
+    await handler2();
   },
   {
     scheduled: true,
