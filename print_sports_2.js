@@ -18,7 +18,7 @@ const SHOPIFY_URL = `https://${STORE}.myshopify.com/admin/api/2025-07/graphql.js
 
 const client_email2 = process.env.CLIENT_EMAIL || "";
 const formatted_key2 = (process.env.PRIVATE_KEY || "").replace(/\\n/g, "\n");
-const root_folder_id = process.env.ROOT_FOLDER_ID || "";
+const root_folder_id = process.env.ROOT_FOLDER_ID4 || "";
 let client2;
 let driveApi;
 const BASE_URL = process.env.LINNWORKS_BASE_URL;
@@ -883,7 +883,7 @@ export async function handler2(event) {
           .publish({
             TopicArn: SNS_TOPIC_ARN,
             Subject: "SPORTS 2 AUTOMATION FAILED!",
-            Message: "",
+            Message: "null",
           })
           .promise();
       });
@@ -899,7 +899,7 @@ function checkEnvVar() {
   const requiredEnvVars = [
     "CLIENT_EMAIL",
     "PRIVATE_KEY",
-    "ROOT_FOLDER_ID",
+    "ROOT_FOLDER_ID4",
     "MONGODB_URI",
     "STORE_NAME",
     "ACCESS_TOKEN",

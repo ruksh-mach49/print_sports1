@@ -898,7 +898,7 @@ export async function handler(event) {
           .publish({
             TopicArn: SNS_TOPIC_ARN,
             Subject: "SPORTS 1 AUTOMATION FAILED!",
-            Message: "",
+            Message: "null",
           })
           .promise();
       });
