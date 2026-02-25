@@ -95,7 +95,7 @@ cron.schedule(
 
 // monday-friday 9:30am for 10AM batch
 cron.schedule(
-  "35 9 * * 1-5",
+  "40 9 * * 1-5",
   async () => {
     await handler();
     await handler2();
