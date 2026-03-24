@@ -21,4 +21,5 @@ credentials*
 *.json
 
 # temporary files
-*tmp
+*tmp/
+tmp/
