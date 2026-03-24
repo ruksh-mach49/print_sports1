@@ -19,3 +19,6 @@ test*
 temp*
 credentials*
 *.json
+
+# temporary files
+*tmp
