@@ -200,10 +200,10 @@ async function processOpenOrders(token, ukTime, sku_db) {
   try {
     const shopify_map = await getShopifyData();
     const sportsOrders = await fetchOpenOrders(token);
-    await fsp.writeFile(
-      "./sports2.json",
-      JSON.stringify(sportsOrders, null, 2),
-    );
+    // await fsp.writeFile(
+    //   "./sports2.json",
+    //   JSON.stringify(sportsOrders, null, 2),
+    // );
     if (sportsOrders == null || !Array.isArray(sportsOrders))
       throw new Error(`INVALID SPORTS ORDER DATA`);
     for (let i = 0; i < sportsOrders.length; i++) {
