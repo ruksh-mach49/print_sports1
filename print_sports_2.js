@@ -46,11 +46,10 @@ const invoiceFolderPath = "./tmp/invoicePrinted";
 let pdfCount = 0;
 let printErrors = [];
 let invoicePrintError = [];
-let northernSportsOrders = [];
-let northernExpressSportsOrders = [];
-let amazonSportsOrders = [];
-let temuSportsOrders = [];
-let otherSportsOrders = [];
+let sportsEvriOrders = [];
+let sportsDhlOrders = [];
+let northernExpressSportsEvriOrders = [];
+let northernExpressSportsDhlOrders = [];
 
 export function logError(err) {
   if (err.isAxiosError) {
@@ -201,6 +200,10 @@ async function processOpenOrders(token, ukTime, sku_db) {
   try {
     const shopify_map = await getShopifyData();
     const sportsOrders = await fetchOpenOrders(token);
+    await fsp.writeFile(
+      "./sports2.json",
+      JSON.stringify(sportsOrders, null, 2),
+    );
     if (sportsOrders == null || !Array.isArray(sportsOrders))
       throw new Error(`INVALID SPORTS ORDER DATA`);
     for (let i = 0; i < sportsOrders.length; i++) {
@@ -257,16 +260,25 @@ async function processOpenOrders(token, ukTime, sku_db) {
         continue;
       }
       let shippingServiceId = "";
-      if (subSource.includes("northern"))
-        shippingServiceId = processNorthernOrder(
+      let shippingServiceType = "";
+      if (subSource.includes("northern")) {
+        ({ shippingServiceType, shippingServiceId } = processNorthernOrder(
           order,
           shopify_map,
           postCodePrefixes,
-        );
-      else if (source.includes("amazon"))
-        shippingServiceId = processAmazonOrder(order, postCodePrefixes);
-      else shippingServiceId = processOtherOrders(order, postCodePrefixes);
-      if (shippingServiceId == null) {
+        ));
+      } else if (source.includes("amazon")) {
+        ({ shippingServiceType, shippingServiceId } = processAmazonOrder(
+          order,
+          postCodePrefixes,
+        ));
+      } else {
+        ({ shippingServiceType, shippingServiceId } = processOtherOrders(
+          order,
+          postCodePrefixes,
+        ));
+      }
+      if (shippingServiceId == null || shippingServiceType == null) {
         console.log(
           `FAILED TO FETCH ORDER: ${order.NumOrderId} POSTALSERVICE ID`,
         );
@@ -278,20 +290,34 @@ async function processOpenOrders(token, ukTime, sku_db) {
         console.log(
           `FAILED TO UPDATE SHIPPING SERVICE FOR ORDER: ${order.NumOrderId}`,
         );
-        logError(err);
+        console.log(
+          `ERR!, stack: ${err.stack}, msg: ${err.message} status: ${err.response?.status} stack: ${err.stack} data: ${JSON.stringify(err.response?.data || {})}`,
+        );
         continue;
       }
       const data = `${order.OrderId}|${order.NumOrderId}`;
-      if (source.includes("amazon")) amazonSportsOrders.push(data);
-      else if (subSource.includes("northern")) {
+      if (source.includes("amazon")) {
+        if (shippingServiceType == "dhl") sportsDhlOrders.push(data);
+        else sportsEvriOrders.push(data);
+      } else if (subSource.includes("northern")) {
         const refNum = order.GeneralInfo.ReferenceNum.trim();
         const isExpress = shopify_map[refNum].includes("express");
         if (isExpress) {
-          console.log(`norhtern express order: ${order.NumOrderId}`);
-          northernExpressSportsOrders.push(data);
-        } else northernSportsOrders.push(data);
-      } else if (source.includes("temu")) temuSportsOrders.push(data);
-      else otherSportsOrders.push(data);
+          //console.log(`norhtern express order: ${order.NumOrderId}`);
+          if (shippingServiceType === "dhl")
+            northernExpressSportsDhlOrders.push(data);
+          else northernExpressSportsEvriOrders.push(data);
+        } else {
+          if (shippingServiceType === "dhl") sportsDhlOrders.push(data);
+          else sportsEvriOrders.push(data);
+        }
+      } else if (source.includes("temu")) {
+        if (shippingServiceType === "dhl") sportsDhlOrders.push(data);
+        else sportsEvriOrders.push(data);
+      } else {
+        if (shippingServiceType === "dhl") sportsDhlOrders.push(data);
+        else sportsEvriOrders.push(data);
+      }
     }
     console.log(`finished fetching orders`);
   } catch (err) {
@@ -310,27 +336,58 @@ function processNorthernOrder(order, shopify_map, postCodePrefixes) {
     console.log(
       `order:${order.NumOrderId}, refNum: ${order.GeneralInfo.ReferenceNum} not found in shopify db`,
     );
-    return null;
+    {
+      return {
+        shippingServiceType: null,
+        shippingServiceId: null,
+      };
+    }
   }
-  if (shopify_map[refNum].includes("pallet")) return null;
+  if (shopify_map[refNum].includes("pallet")) {
+    return {
+      shippingServiceType: null,
+      shippingServiceId: null,
+    };
+  }
   const isExpress = shopify_map[refNum].includes("express");
   const totalWeight = order.ShippingInfo.TotalWeight;
   const postCode = order.CustomerInfo.Address.PostCode.trim().toLowerCase();
   const isOutOfArea = postCodePrefixes.some((pc) => postCode.startsWith(pc));
   const isBTPostCode = postCode.startsWith("bt");
-  if (isBTPostCode) return DHL_48;
+  let service = null;
+  if (isBTPostCode) service = DHL_48;
   if (totalWeight <= 14) {
-    if (isExpress) return M28_24;
-    else return M28_48;
+    if (isExpress) service = M28_24;
+    else service = M28_48;
   } else {
-    if (isOutOfArea) return DHL_48;
-    else return DHL_ND;
+    if (isOutOfArea) service = DHL_48;
+    else service = DHL_ND;
   }
+  let service_type = null;
+  // Determine service_type based on the *variable name*
+  if (
+    service === DHL_ND ||
+    service === DHL_48
+    // Add any other DHL service variables here if they exist
+  ) {
+    service_type = "dhl";
+  } else {
+    service_type = "evri";
+  }
+  return {
+    shippingServiceType: service_type,
+    shippingServiceId: service,
+  };
 }
 
 function processAmazonOrder(order, postCodePrefixes) {
   const identifiers = order.GeneralInfo?.Identifiers;
-  if (identifiers == null) return null;
+  if (identifiers == null) {
+    return {
+      shippingServiceType: null,
+      shippingServiceId: null,
+    };
+  }
   let isPrime = false;
   for (let k = 0; k < identifiers.length; k++) {
     const idf = identifiers[k];
@@ -350,22 +407,58 @@ function processAmazonOrder(order, postCodePrefixes) {
   const totalWeight = order.ShippingInfo.TotalWeight;
   const postCode = order.CustomerInfo.Address.PostCode.trim().toLowerCase();
   const isOutOfArea = postCodePrefixes.some((pc) => postCode.startsWith(pc));
+  let service = null;
   if (isPrime) {
-    if (isOutOfArea || totalWeight > 14) return ABS_DPD_NEXT_DAY;
-    else return ABS_EVRI_LINKED_NEXT_DAY;
+    if (isOutOfArea || totalWeight > 14) service = ABS_DPD_NEXT_DAY;
+    else service = ABS_EVRI_LINKED_NEXT_DAY;
   } else if (totalWeight > 14) {
-    if (isOutOfArea) return DHL_48;
-    else return DHL_ND;
-  } else return M28_48;
+    if (isOutOfArea) service = DHL_48;
+    else service = DHL_ND;
+  } else service = M28_48;
+
+  let service_type = null;
+  // Determine service_type based on the *variable name*
+  if (
+    service === DHL_ND ||
+    service === DHL_48
+    // Add any other DHL service variables here if they exist
+  ) {
+    service_type = "dhl";
+  } else {
+    service_type = "evri";
+  }
+
+  return {
+    shippingServiceType: service_type,
+    shippingServiceId: service,
+  };
 }
 
 function processOtherOrders(order, postCodePrefixes) {
   const totalWeight = order.ShippingInfo.TotalWeight;
   const postCode = order.CustomerInfo.Address.PostCode.trim().toLowerCase();
   const isOutOfArea = postCodePrefixes.some((pc) => postCode.startsWith(pc));
-  if (totalWeight <= 14) return M28_48;
-  else if (isOutOfArea) return DHL_48;
-  else return DHL_ND;
+  let service = null;
+  if (totalWeight <= 14) service = M28_48;
+  else if (isOutOfArea) service = DHL_48;
+  else service = DHL_ND;
+
+  let service_type = null;
+  // Determine service_type based on the *variable name*
+  if (
+    service === DHL_ND ||
+    service === DHL_48
+    // Add any other DHL service variables here if they exist
+  ) {
+    service_type = "dhl";
+  } else {
+    service_type = "evri";
+  }
+
+  return {
+    shippingServiceType: service_type,
+    shippingServiceId: service,
+  };
 }
 
 async function getShopifyData() {
@@ -756,11 +849,10 @@ async function createFolder(folderName, parentFolderId) {
 
 export async function handler2(event) {
   console.time("timer");
-  northernSportsOrders = [];
-  northernExpressSportsOrders = [];
-  amazonSportsOrders = [];
-  temuSportsOrders = [];
-  otherSportsOrders = [];
+  sportsDhlOrders = [];
+  sportsEvriOrders = [];
+  northernExpressSportsEvriOrders = [];
+  northernExpressSportsDhlOrders = [];
   pdfCount = 0;
   printErrors = [];
   invoicePrintError = [];
@@ -816,41 +908,34 @@ export async function handler2(event) {
       auth.Token,
       sportsFolderId,
       ukTime,
-      "_2_northern",
-      northernSportsOrders,
+      "_2_evri",
+      sportsEvriOrders,
     );
     pdfCount = 0;
     await printSportsOrders(
       auth.Token,
       sportsFolderId,
       ukTime,
-      "_2_northern_express",
-      northernExpressSportsOrders,
+      "_2_dhl",
+      sportsDhlOrders,
     );
     pdfCount = 0;
     await printSportsOrders(
       auth.Token,
       sportsFolderId,
       ukTime,
-      "_2_amazon",
-      amazonSportsOrders,
+      "_2_express_evri",
+      northernExpressSportsEvriOrders,
     );
     pdfCount = 0;
     await printSportsOrders(
       auth.Token,
       sportsFolderId,
       ukTime,
-      "_2_temu",
-      temuSportsOrders,
+      "_2_express_dhl",
+      northernExpressSportsDhlOrders,
     );
-    pdfCount = 0;
-    await printSportsOrders(
-      auth.Token,
-      sportsFolderId,
-      ukTime,
-      "_2_other",
-      otherSportsOrders,
-    );
+
     console.log("All files uploaded successfully.");
     console.timeEnd("timer");
     if (invoicePrintError.length > 0) {
