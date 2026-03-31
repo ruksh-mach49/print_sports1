@@ -43,7 +43,7 @@ cron.schedule(
 
 // monday 2:30am for 7AM batch
 cron.schedule(
-  "34 2 * * 1",
+  "15 2 * * 1",
   async () => {
     await handler();
     await handler2();
@@ -69,7 +69,7 @@ cron.schedule(
 
 // tuesday-friday 3:30am for 7AM batch
 cron.schedule(
-  "35 3 * * 2-5",
+  "15 3 * * 2-5",
   async () => {
     await handler();
     await handler2();
@@ -95,7 +95,7 @@ cron.schedule(
 
 // monday-friday 9:30am for 10AM batch
 cron.schedule(
-  "40 9 * * 1-5",
+  "15 9 * * 1-5",
   async () => {
     await handler();
     await handler2();
@@ -108,7 +108,7 @@ cron.schedule(
 
 // monday-friday 11:30am for 12PM batch
 cron.schedule(
-  "35 11 * * 1-5",
+  "15 11 * * 1-5",
   async () => {
     await handler();
     await handler2();
@@ -121,7 +121,7 @@ cron.schedule(
 
 // monday-friday 2:00pm for 2:30PM batch
 cron.schedule(
-  "4 14 * * 1-5",
+  "45 13 * * 1-5",
   async () => {
     await handler();
     await handler2();
@@ -134,7 +134,7 @@ cron.schedule(
 
 // monday-friday 3:15pm for 3:45PM batch
 cron.schedule(
-  "18 15 * * 1-5",
+  "0 15 * * 1-5",
   async () => {
     await handler();
     await handler2();
